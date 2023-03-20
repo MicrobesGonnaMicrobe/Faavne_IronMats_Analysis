@@ -10,7 +10,7 @@ Tools and commands used for analyses of microbial iron mats at Fåvne hydrotherm
 * `dRep v3.2.2`: https://github.com/MrOlm/drep
 
 ### Manual refinement of MAGs
-* `anvi’o v7.0`: https://anvio.org
+* `anvi’o v7.1`: https://anvio.org
 
 ### Download reference genomes 
 ### Get genome metadata
@@ -20,14 +20,58 @@ Tools and commands used for analyses of microbial iron mats at Fåvne hydrotherm
 
 ## Phylogenomics
 
-* `anvi’o v7.0`: https://anvio.org
+* `anvi’o v7.1`: https://anvio.org
 * `IQ-TREE v2.1.4`: http://www.iqtree.org
 
 ### Make list of genes
+List available HMM sources in the contigs database
+anvi-get-sequences-for-hmm-hits --external-genomes external_selected_genomes.txt --list-hmm-sources
+
+Alternative HMM sources (add your own external database)
+- Get HMMs from GTDB single copy marker genes database repository, r202: https://data.ace.uq.edu.au/public/gtdb/data/releases/release202/202.0/genomic_files_all/bac120_msa_marker_genes_all_r202.tar.gz
+- Import to anvi'o in a specific format: https://github.com/merenlab/anvio/tree/master/anvio/data/hmm/Bacteria_71
+- To get descriptions of marker genes from GTDB, you can find the markers and their descriptions in gtdbtk output under "align/intermediate_results"
+
+Build HMMs
+* `hmmbuild 3.2.1`
+```bash
+#!/bin/bash
+for bins in *.faa
+do
+	basename=${bins%.faa}
+	id=${basename}
+   hmmbuild --amino ${id}.hmm "${bins}"
+done
+```
+
+Run GTDB marker genes HMMs
+```bash
+for i in *.db; do anvi-run-hmms -c $i -H /export/work_cgb/Shared/Anvio_GTDB_markers_r202/GTDB_bac120_r202 --num-threads 6; done
+```
+
 ### Get amino acid sequences
 ```bash
-anvi-get-sequences-for-hmm-hits 
+anvi-get-sequences-for-hmm-hits --external-genomes external_selected_genomes.txt --hmm-source GTDB_bac120_r202 --list-available-gene-names
+anvi-get-sequences-for-hmm-hits --external-genomes external_selected_genomes.txt --hmm-source Bacteria_71 --list-available-gene-names
 ```
+
+Decide which set of markers to use
+- only select the single copy marker genes (check with a matrix if they are in duplicates)
+- select the ones that are mostly present in the genomes
+- more good quality marker genes, the better
+
+To check presence of marker genes in all genomes (matrix):
+```bash
+anvi-script-gen-hmm-hits-matrix-across-genomes --external-genomes external_selected_genomes.txt --hmm-source GTDB_bac120_r202 -o Zeta_GTDB_bac120_markers_matrix.txt
+```
+
+Choose a subset of those genes and get them in one fasta file (without alignment and concatenation)
+```bash
+anvi-get-sequences-for-hmm-hits --external-genomes external_selected_genomes.txt -o Zetaproteobacteria_selectedmarkers_Bacteria71.fa --hmm-source Bacteria_71 --gene-names Zetaproteobacteria_selectedmarkers_Bacteria71.txt --return-best-hit --get-aa-sequences
+
+anvi-get-sequences-for-hmm-hits --external-genomes external_selected_genomes.txt -o Zetaproteobacteria_selectedmarkers_GTDB_bac120.fa --hmm-source GTDB_bac120_r202 --gene-names Zetaproteobacteria_selectedmarkers_GTDB_bac120.txt --return-best-hit --get-aa-sequences
+```
+
 ### Trim with trimal
 
 ### Align with mafft
