@@ -8,9 +8,41 @@ Tools and commands used for analyses of microbial iron mats at Fåvne hydrotherm
 
 ## Phylogeny of NiFe uptake hydrogenase and cyc2
 
-## Metabolism and other genes
+## Annotation: Metabolism and other genes
 
-## Iron oxidation
+### Iron oxidation
+
+#### FeGenie: iron genes and metabolism
+- Tutorial: https://github.com/Arkadiy-Garber/FeGenie/wiki/Tutorial
+
+    ```
+    FeGenie.py -bin_dir /export/work_cgb/Petra/Zetaproteobacteria/fasta_files_bins/ -bin_ext fa -out fegenie_output 
+    ```
+
+Sample command (if providing gene-calls):
+
+    ```
+    FeGenie.py -bin_dir Anvio_genecalls_aa -bin_ext fa -out Anvio_genecalls_aa_fegenie3 --orfs
+    ```
+
+### BacMet: Heavy metal resistance genes and biocides
+Experimentally Verified Resistance Gene Information:
+http://bacmet.biomedicine.gu.se/database_browse.pl
+
+Predicted:
+
+    ```
+    for i in *.faa; do blastp -query $i -db BacMet2_predicted_database.fasta -out BacMet_Results/${i%.faa}_BacMet_Pred -outfmt 6 -evalue 1e-6 -num_threads 20; done
+    
+    cd BacMet_Results
+    
+    for i in *_BacMet_Pred; do perl best_blast.pl $i ${i%}_best; done
+    
+    cat *Pred_best > Faavne_BS4_allZetaproteobacteria_BacMet_Pred.tsv
+    ```
+
+What database and threshold criteria to use?
+"... for screening of metagenomes and applying a uniform, more relaxed cut-off criteria, we recommend to use predicted database with a criterion of about 85-90% sequence identity with the full length coverage of the short reads (75-300+ bps) against resistance genes. Similarly, the predicted database is useful for investigating the presence of resistance genes in genomes of species that are not closely related to the ones our experimental knowledge about the genes resistance function are derived from." - http://bacmet.biomedicine.gu.se/FAQS.html#experimetal
 
 ## Other
 
