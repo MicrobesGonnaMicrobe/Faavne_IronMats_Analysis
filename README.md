@@ -5,18 +5,58 @@ Tools and commands used for analyses of microbial iron mats at Fåvne hydrotherm
 ## Genome-resolved metagenomics
 
 ## MAGs
-* `GTDB-Tk v1.3.0`: https://github.com/Ecogenomics/GTDBTk
-* `ncbi-genome-download v0.3.1`: https://github.com/kblin/ncbi-genome-download
-* `dRep v3.2.2`: https://github.com/MrOlm/drep
 
 ### Manual refinement of MAGs
 * `anvi’o v7.1`: https://anvio.org
 
-### Download reference genomes 
-### Get genome metadata
+### Dereplication
+* `dRep v3.2.2`: https://github.com/MrOlm/drep
+Chosing parameters: https://drep.readthedocs.io/en/latest/choosing_parameters.html
+
+At 95 ANI clustering:
+```bash
+dRep dereplicate -p 8 -g genomes_50_10_paths.txt -comp 50 -con 10 -sa 0.95 genomes_50_10_dRep_95
+```
+
+### Download reference genomes with metadata
+* `ncbi-genome-download v0.3.1`: https://github.com/kblin/ncbi-genome-download
+
+Make a taxid list for ncbi-genome-download
+- "On first use, a small sqlite database will be created in your home directory by default (change the location with the --database flag). You can update this database by using the --update flag. What it's doing it's downloading the new version of this: wget -c ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
+- This script lets you find out what TaxIDs to pass to ngd:
+```bash
+python gimme_taxa.py -o zetataxafile_2021_10_19.txt 580370 --update
+```
+
+Get unique taxids from the second column (descendent_taxid), extract second column and turn to comma separated list:
+```bash
+awk '{print $2}' file.txt | paste -s -d, -
+```
+
+Download taxid genomes with metadata
+```bash
+ncbi-genome-download --section genbank --format fasta,assembly-report,assembly-stats -t 314345,1188231,904974,1921010,1921086,1921087,2528639,933853,999537,1353261,1871319,1896269,1896270,1896271,1896272,1896273,1896274,1896276,1896277,1896278,1896279,1896280,1896281,1896282,1896283,1896284,1896297,1896298,1896300,1896301,1896303,1896304,1946828,1946829,1946830,1946831,1946832,2608715,2608716,2650971,2306050,2614254,587656,933866,933867,933868,1871100,1131282,1131283,1131284,1131285,1131286,1131287,1131288,1131289,1131290,1313310,1313311,1314827,1314828,1314829,1314830,1314831,1314832,1314833,1314834,1740636,1740639,1805426,1805427,1805428,1805429,1805430,1849588,1850256,1856032,1974110,1974111,1974112,1974113,1974114,1974115,1974116,1974117,1974118,1974119,1974120,1974121,1974122,1974123,1974124,1974125,1974126,1974127,1974128,1974129,1974130,2026807,1485545,2045305 --flat-output -v -o Zetaproteobacteria_NCBI_2021_10_19 -m Zetaproteobacteria_NCBI_2021_10_19_metadata.txt all
+```
 
 ### Calculate ANI
 ### Calculate AAI
+
+### Taxonomy
+* `GTDB-Tk v1.3.0`: https://github.com/Ecogenomics/GTDBTk
+```bash
+gtdbtk classify_wf --genome_dir MAGs --out_dir MAGs_gtdbtk -x fa --cpus 20
+```
+
+### Genome quality and statistics
+* `CheckM`: [https://github.com/Ecogenomics/GTDBTk](https://github.com/Ecogenomics/CheckM)
+```bash
+checkm lineage_wf allbins_only/ allbins_only/checkm -x fa -t 6 --pplacer_threads 6 --tmpdir /export/work_cgb/Petra/tmp -f BS4_checkM_113012021.tsv --tab_table
+```
+
+If you want to have a thorough bin statistics .tsv metadata file can be generated using the qa option in CheckM
+```bash
+checkm qa lineage.ms . --tmpdir /export/work_cgb/Petra/tmp -o 2 -f Phylogenomics_references_alltaxa_GB_checkm_stats.tsv --tab_table
+```
 
 ## Phylogenomics
 
@@ -72,19 +112,68 @@ anvi-get-sequences-for-hmm-hits --external-genomes external_selected_genomes.txt
 anvi-get-sequences-for-hmm-hits --external-genomes external_selected_genomes.txt -o Zetaproteobacteria_selectedmarkers_GTDB_bac120.fa --hmm-source GTDB_bac120_r202 --gene-names Zetaproteobacteria_selectedmarkers_GTDB_bac120.txt --return-best-hit --get-aa-sequences
 ```
 
-### Trim with trimal
+Make separate trees for all separate proteins (to check if monophyletic/good marker genes)
+```bash
+anvi-gen-phylogenomic-tree -f Zetas_ribosomal_L15.fa -o Zetas_ribosomal_L15_tree.txt
 
-### Align with mafft
+or
+
+FastTree protein_alignment > tree_file
+```
+
+Split multifasta markers from anvio into single marker files
+- The file with all markers is divided based on the header before the "___" symbol into one file per marker:
+
+```bash
+seqkit split -i --id-regexp "^(\\S+)\___\s?" Zeta_ribosomal_markers20_proteins.fa
+```
+
+### Align individual sequences with mafft
+```bash
+mkdir individual_mafft
+for i in *.fa; do mafft-linsi $i | awk 'BEGIN{FS=":|[|]"}{if(/^>/){print ">"$2}else{print $0}}' > individual_mafft/${i%.fa}_mafft.fa; done
+```
+
+### Trimming
+* trimAl (v1.4.rev15)
+
+Before using trimal, remove spaces in >fasta headers, so that trimal does not remove the taxonomic classification reported in the header
+```bash
+sed -i 's/ /_/' *mafft.fa
+sed -i 's/:/_/' *mafft.fa
+
+mkdir trimal
+for i in *mafft.fa; do trimal -in $i -gt 0.5 -cons 60 |cut -f 1 -d ' ' > trimal/${i%.fa}_trimal.fa; done
+
+-gt 0.5 -cons 60
+#### Removes all positions in the alignment with gaps in 50% or more of the sequences, unless this leaves less than 60%. In such case, print the 60% best (with less gaps) positions.
+```
 
 ### Concatenate
+* catfasta2.phyml v07.04.20 (https://github.com/nylander/catfasta2phyml)
+```bash
+catfasta2phyml -v -c -f *mafft_trimal.fa > Zetaproteobacteria_concat_mafft_trimal.fa
+```
 
 ### Build tree
 
-## 16S rRNA gene phylogeny
+Choose the best substitution model (Best-fit model)
+- "By default, substitution models are not included in these tests. If we want to test them we have to add them. Generally, it is recommended to include them in the test and the following selection would be quite comprehensive for testing models."
+```bash
+iqtree -s Zetaproteobacteria_concat_mafft_trimal.fa -m MFP -madd LG+C10,LG+C20,LG+C30,LG+C40,LG+C50,LG+C60,LG+C10+R+F,LG+C20+R+F,LG+C30+R+F,LG+C40+R+F,LG+C50+R+F,LG+C60+R+F -v -nt 4
+```
+
+#### The standard non-parametric bootstraping with 1000 replicates
+```bash
+iqtree -s Zetaproteobacteria_concat_mafft_trimal.fa -m LG+F+R7 -b 1000 -nt 4 -pre Zetaproteobacteria_b1000_LG_F_R7
+```
+
+Visualise the tree by importing to iTOL and use templates for tree annotation: https://itol.embl.de/help.cgi#annot
 
 ## Phylogeny of NiFe uptake hydrogenase and cyc2
 
 ## Annotation: Metabolism and other genes
+Gene calling and functional annotation of MAGs was performed with an automated pipeline (Dombrowski et al., 2020) conducting separate searches against Prokka v1.14 (Seemann, 2014), NCBI COG (downloaded from NCBI webserver in February 2021), arCOG (version from 2018) (Makarova et al., 2015), KEGG (downloaded in February 2021) (Aramaki et al., 2020), Pfam (release 33.0) (Bateman et al., 2004), TIGRFAM (release 15.0) (Haft et al., 2003), CAZy (dbCAN v9) (Cantarel et al., 2009), Transporter Classification Database (downloaded from TCDB webserver in February 2021) (Saier et al., 2006), HydDB (downloaded from HydDB webserver in February 2021) (Søndergaard et al., 2016) and NCBI_nr (downloaded from NCBI webserver in February 2021).
 
 ### Iron oxidation
 
@@ -135,3 +224,4 @@ https://github.com/DavidBSauer/OGT_prediction
 
 5. Results in newly_predicted_OGTs.txt
 
+## References
