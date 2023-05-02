@@ -129,13 +129,17 @@ seqkit split -i --id-regexp "^(\\S+)\___\s?" Zeta_ribosomal_markers20_proteins.f
 ```
 
 ### Align individual sequences with mafft
+* `MAFFT L-INS-i v7.397`
 ```bash
 mkdir individual_mafft
 for i in *.fa; do mafft-linsi $i | awk 'BEGIN{FS=":|[|]"}{if(/^>/){print ">"$2}else{print $0}}' > individual_mafft/${i%.fa}_mafft.fa; done
 ```
 
+- Inspect the alignment manually
+* `AliView v1.26`
+
 ### Trimming
-* trimAl (v1.4.rev15)
+* `trimAl v1.4.rev15`
 
 Before using trimal, remove spaces in >fasta headers, so that trimal does not remove the taxonomic classification reported in the header
 ```bash
@@ -150,15 +154,16 @@ for i in *mafft.fa; do trimal -in $i -gt 0.5 -cons 60 |cut -f 1 -d ' ' > trimal/
 ```
 
 ### Concatenate
-* catfasta2.phyml v07.04.20 (https://github.com/nylander/catfasta2phyml)
+* `catfasta2.phyml v07.04.20`: (https://github.com/nylander/catfasta2phyml)
 ```bash
 catfasta2phyml -v -c -f *mafft_trimal.fa > Zetaproteobacteria_concat_mafft_trimal.fa
 ```
 
 ### Build tree
-
+* `IQ-TREE v2.0.3`: https://github.com/Cibiv/IQ-TREE
 Choose the best substitution model (Best-fit model)
 - "By default, substitution models are not included in these tests. If we want to test them we have to add them. Generally, it is recommended to include them in the test and the following selection would be quite comprehensive for testing models."
+
 ```bash
 iqtree -s Zetaproteobacteria_concat_mafft_trimal.fa -m MFP -madd LG+C10,LG+C20,LG+C30,LG+C40,LG+C50,LG+C60,LG+C10+R+F,LG+C20+R+F,LG+C30+R+F,LG+C40+R+F,LG+C50+R+F,LG+C60+R+F -v -nt 4
 ```
@@ -172,12 +177,33 @@ Visualise the tree by importing to iTOL and use templates for tree annotation: h
 
 ## Phylogeny of NiFe uptake hydrogenase and cyc2
 
+Dereplicate identical sequences
+* `CD-HIT v4.8.1`
+Clustering at 100% identity using CD-HIT
+
+```bash
+cd-hit -i Cyc2.fa -o Cyc2_drep100.fa -c 1.00
+```
 ## Annotation: Metabolism and other genes
-Gene calling and functional annotation of MAGs was performed with an automated pipeline (Dombrowski et al., 2020) conducting separate searches against Prokka v1.14 (Seemann, 2014), NCBI COG (downloaded from NCBI webserver in February 2021), arCOG (version from 2018) (Makarova et al., 2015), KEGG (downloaded in February 2021) (Aramaki et al., 2020), Pfam (release 33.0) (Bateman et al., 2004), TIGRFAM (release 15.0) (Haft et al., 2003), CAZy (dbCAN v9) (Cantarel et al., 2009), Transporter Classification Database (downloaded from TCDB webserver in February 2021) (Saier et al., 2006), HydDB (downloaded from HydDB webserver in February 2021) (Søndergaard et al., 2016) and NCBI_nr (downloaded from NCBI webserver in February 2021).
+
+- Based on this annotation workflow: https://ndombrowski.github.io/Annotation_workflow/
+
+Gene calling and functional annotation of MAGs was performed with an automated pipeline conducting separate searches against:
+* `Prokka v1.14`
+* NCBI COG (downloaded from NCBI webserver in February 2021)
+* arCOG (version from 2018)
+* KEGG (downloaded in February 2021)
+* Pfam (release 33.0)
+* TIGRFAM (release 15.0)
+* CAZy (dbCAN v9)
+* Transporter Classification Database (downloaded from TCDB webserver in February 2021)
+* HydDB (downloaded from HydDB webserver in February 2021)
+* NCBI_nr (downloaded from NCBI webserver in February 2021)
 
 ### Iron oxidation
 
 #### FeGenie: iron genes and metabolism
+* `FeGenie`
 - Tutorial: https://github.com/Arkadiy-Garber/FeGenie/wiki/Tutorial
 ```bash
     FeGenie.py -bin_dir /export/work_cgb/Petra/Zetaproteobacteria/fasta_files_bins/ -bin_ext fa -out fegenie_output 
@@ -208,10 +234,39 @@ Predicted:
 What database and threshold criteria to use?
 "... for screening of metagenomes and applying a uniform, more relaxed cut-off criteria, we recommend to use predicted database with a criterion of about 85-90% sequence identity with the full length coverage of the short reads (75-300+ bps) against resistance genes. Similarly, the predicted database is useful for investigating the presence of resistance genes in genomes of species that are not closely related to the ones our experimental knowledge about the genes resistance function are derived from." - http://bacmet.biomedicine.gu.se/FAQS.html#experimetal
 
+### Predicting gene expression using codon bias
+* `coRdon v1.8.0`: R package https://github.com/BioinfoHR/coRdon
+- GUI: `INCA`
+
 ## Other
 
+### Zetaproteobacteria taxonomy based on OTUs
+* `ZetaHunter v1.0.11`: https://github.com/mooreryan/ZetaHunter/
+
+1. Extract 16S rRNA genes from MAGs
+* `barrnap`: https://github.com/tseemann/barrnap
+* `anvi’o v7.1`: https://anvio.org
+
+```bash
+for i in *.fa; do barrnap --kingdom bac --lencutoff 0.2 --reject 0.3 --evalue 1e-05 --threads 20 --outseq barrnap/${i%.fa}_barrnap.fa $i; done
+```
+
+or
+
+```bash
+anvi-get-sequences-for-hmm-hits --external-genomes external_selected_genomes.txt --hmm-source Ribosomal_RNA_16S --list-available-gene-names
+```
+
+2. Check for chimeras
+3. Make a SINA alignment with them: https://www.arb-silva.de/aligner/
+3. Run ZetaHunter (with a --no-check-chimeras tag, otherwise it doesn't want to run)
+
+    ```
+run_zeta_hunter --inaln Zetas_SINAalign.fasta --outdir Faavne_biofilms_Zetahunter --no-check-chimeras
+    ```
+    
 ### Predicting optimal growth temperatures (OGT)
-https://github.com/DavidBSauer/OGT_prediction
+* https://github.com/DavidBSauer/OGT_prediction
 
 1. Place each genome in a folder in the prediction directory called "genomes/XXX/" where XXX is the name of the species.  Genomes should be ziped in .gz format.
 2. Create a tab separated file of the genomes and species pairs. Provide this file in place of genomes_retrieved.txt. 
@@ -224,4 +279,33 @@ https://github.com/DavidBSauer/OGT_prediction
 
 5. Results in newly_predicted_OGTs.txt
 
-## References
+### Viruses
+* `VIBRANT v.1.2.1`: https://github.com/AnantharamanLab/VIBRANT
+
+    ```
+VIBRANT_run.py -i unbinned_contigs_refined.fa
+    ```
+    
+VIBRANT uses:
+* KEGG (March release): https://www.genome.jp/kegg/ (FTP: ftp://ftp.genome.jp/pub/db/kofam/archives/2019-03-20/)
+* Pfam (v32): https://pfam.xfam.org (FTP: ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam32.0/)
+* VOG (release 94): http://vogdb.org/ (FTP: http://fileshare.csb.univie.ac.at/vog/vog94/)
+
+* `CheckV v.0.8.1`: https://bitbucket.org/berkeleylab/checkv/src/master/
+
+    ```
+checkv end_to_end input_file.fna output_directory -t 4
+    ```
+    
+* `VirMatcher`: https://bitbucket.org/MAVERICLab/virmatcher/src/master/
+
+- Tools that make VirMatcher possible: Minced, tRNAscan-SE, WIsH, BLAST
+- NOTE! All fasta files need to end in .fasta!
+- "--virus-fp": The putative/suspected/known viruses in a single FASTA-formatted file.
+- Taxonomy files: A tab-delimited archaeal genome taxonomy file. Should be in the format of "host name \<TAB> taxon". The taxon can be any level.
+
+    ```
+VirMatcher --virus-fp Faavne_Nanopore_viruses.fasta --bacteria-host-dir Faavne_potential_hosts --bacteria-taxonomy Faavne_potential_hosts_taxonomy.txt --threads 8 -o Faavne_Nanopore_VirMatcher --python-aggregator
+    ```
+
+
