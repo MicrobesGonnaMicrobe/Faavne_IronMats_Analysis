@@ -2,7 +2,34 @@
 
 Tools and commands used for analyses of microbial iron mats at Fåvne hydrothermal vent field. Article in preparation.
 
-## Genome-resolved metagenomics
+## Content
+- [Microbial iron mats at Fåvne hydrothermal vent](#microbial-iron-mats-at-f-vne-hydrothermal-vent)
+  * [MAGs](#mags)
+    + [Manual refinement of MAGs](#manual-refinement-of-mags)
+    + [Dereplication](#dereplication)
+    + [Download reference genomes with metadata](#download-reference-genomes-with-metadata)
+    + [Calculate Average nucleotide identity (ANI)](#calculate-average-nucleotide-identity--ani-)
+    + [Calculate Average aminoacid identity (AAI)](#calculate-average-aminoacid-identity--aai-)
+    + [Taxonomy](#taxonomy)
+    + [Genome quality and statistics](#genome-quality-and-statistics)
+  * [Phylogenomics](#phylogenomics)
+    + [Make list of genes](#make-list-of-genes)
+    + [Get amino acid sequences](#get-amino-acid-sequences)
+    + [Align individual sequences with mafft](#align-individual-sequences-with-mafft)
+    + [Trimming](#trimming)
+    + [Concatenate](#concatenate)
+    + [Build tree](#build-tree)
+      - [The standard non-parametric bootstraping with 1000 replicates](#the-standard-non-parametric-bootstraping-with-1000-replicates)
+  * [Phylogeny of NiFe uptake hydrogenase and cyc2](#phylogeny-of-nife-uptake-hydrogenase-and-cyc2)
+  * [Annotation: Metabolism and other genes](#annotation--metabolism-and-other-genes)
+    + [Iron oxidation](#iron-oxidation)
+      - [FeGenie: iron genes and metabolism](#fegenie--iron-genes-and-metabolism)
+    + [BacMet: Heavy metal resistance genes and biocides](#bacmet--heavy-metal-resistance-genes-and-biocides)
+    + [Predicting gene expression using codon bias](#predicting-gene-expression-using-codon-bias)
+  * [Other](#other)
+    + [Zetaproteobacteria taxonomy based on OTUs](#zetaproteobacteria-taxonomy-based-on-otus)
+    + [Predicting optimal growth temperatures (OGT)](#predicting-optimal-growth-temperatures--ogt-)
+    + [Viruses](#viruses)
 
 ## MAGs
 
