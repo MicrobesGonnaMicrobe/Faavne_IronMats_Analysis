@@ -299,9 +299,9 @@ anvi-get-sequences-for-hmm-hits --external-genomes external_selected_genomes.txt
 3. Make a SINA alignment with them: https://www.arb-silva.de/aligner/
 3. Run ZetaHunter (with a --no-check-chimeras tag, otherwise it doesn't want to run)
 
-    ```
+```
 run_zeta_hunter --inaln Zetas_SINAalign.fasta --outdir Faavne_biofilms_Zetahunter --no-check-chimeras
-    ```
+```
     
 ### Predicting optimal growth temperatures (OGT)
 * https://github.com/DavidBSauer/OGT_prediction
@@ -311,18 +311,18 @@ run_zeta_hunter --inaln Zetas_SINAalign.fasta --outdir Faavne_biofilms_Zetahunte
 3. Create a file for the taxonomic classification of each species. 
 4. Run the script: Run the prediction script to predict the OGT of each species. If you want to account for absence of 16S rRNA gene and genome incompleteness (usual with MAGs), use specified regression models modified to exclude 16S rRNA gene and genome size: https://github.com/DavidBSauer/OGT_prediction/tree/master/data/calculations/prediction/regression_models
 
-    ```
+```
     python3 ~/OGT_prediction/OGT_prediction/prediction/prediction_pipeline.py regression_models_Bacteria_uncultivated/ Faavne_MAGs.txt Faavne_MAGs_taxonomic3.txt
-    ```
+```
 
 5. Results in newly_predicted_OGTs.txt
 
 ### Viruses
 * `VIBRANT v.1.2.1`: https://github.com/AnantharamanLab/VIBRANT
 
-    ```
+```
 VIBRANT_run.py -i unbinned_contigs_refined.fa
-    ```
+```
     
 VIBRANT uses:
 * KEGG (March release): https://www.genome.jp/kegg/ (FTP: ftp://ftp.genome.jp/pub/db/kofam/archives/2019-03-20/)
