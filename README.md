@@ -11,9 +11,9 @@ Tools and commands used for analyses of microbial iron mats at Fåvne hydrotherm
 
 ### Dereplication
 * `dRep v3.2.2`: https://github.com/MrOlm/drep
-Chosing parameters: https://drep.readthedocs.io/en/latest/choosing_parameters.html
+- Chosing parameters: https://drep.readthedocs.io/en/latest/choosing_parameters.html
 
-At 95 ANI clustering:
+- At 95 ANI clustering:
 ```bash
 dRep dereplicate -p 8 -g genomes_50_10_paths.txt -comp 50 -con 10 -sa 0.95 genomes_50_10_dRep_95
 ```
@@ -38,8 +38,16 @@ Download taxid genomes with metadata
 ncbi-genome-download --section genbank --format fasta,assembly-report,assembly-stats -t 314345,1188231,904974,1921010,1921086,1921087,2528639,933853,999537,1353261,1871319,1896269,1896270,1896271,1896272,1896273,1896274,1896276,1896277,1896278,1896279,1896280,1896281,1896282,1896283,1896284,1896297,1896298,1896300,1896301,1896303,1896304,1946828,1946829,1946830,1946831,1946832,2608715,2608716,2650971,2306050,2614254,587656,933866,933867,933868,1871100,1131282,1131283,1131284,1131285,1131286,1131287,1131288,1131289,1131290,1313310,1313311,1314827,1314828,1314829,1314830,1314831,1314832,1314833,1314834,1740636,1740639,1805426,1805427,1805428,1805429,1805430,1849588,1850256,1856032,1974110,1974111,1974112,1974113,1974114,1974115,1974116,1974117,1974118,1974119,1974120,1974121,1974122,1974123,1974124,1974125,1974126,1974127,1974128,1974129,1974130,2026807,1485545,2045305 --flat-output -v -o Zetaproteobacteria_NCBI_2021_10_19 -m Zetaproteobacteria_NCBI_2021_10_19_metadata.txt all
 ```
 
-### Calculate ANI
-### Calculate AAI
+### Calculate Average nucleotide identity (ANI)
+* `anvi’o v7.1`: https://anvio.org
+
+```bash
+anvi-compute-genome-similarity -e external_selected_genomes.txt -o MAGs_HighMediumQC_ANI --program pyANI --method ANIb -T 25
+```
+
+### Calculate Average aminoacid identity (AAI)
+* `ezAAI`: http://leb.snu.ac.kr/ezaai/tutorial
+
 
 ### Taxonomy
 * `GTDB-Tk v1.3.0`: https://github.com/Ecogenomics/GTDBTk
@@ -65,8 +73,9 @@ checkm qa lineage.ms . --tmpdir /export/work_cgb/Petra/tmp -o 2 -f Phylogenomics
 
 ### Make list of genes
 List available HMM sources in the contigs database
+```bash
 anvi-get-sequences-for-hmm-hits --external-genomes external_selected_genomes.txt --list-hmm-sources
-
+```
 Alternative HMM sources (add your own external database)
 - Get HMMs from GTDB single copy marker genes database repository, r202: https://data.ace.uq.edu.au/public/gtdb/data/releases/release202/202.0/genomic_files_all/bac120_msa_marker_genes_all_r202.tar.gz
 - Import to anvi'o in a specific format: https://github.com/merenlab/anvio/tree/master/anvio/data/hmm/Bacteria_71
@@ -74,6 +83,7 @@ Alternative HMM sources (add your own external database)
 
 Build HMMs
 * `hmmbuild 3.2.1`
+
 ```bash
 #!/bin/bash
 for bins in *.faa
@@ -161,6 +171,7 @@ catfasta2phyml -v -c -f *mafft_trimal.fa > Zetaproteobacteria_concat_mafft_trima
 
 ### Build tree
 * `IQ-TREE v2.0.3`: https://github.com/Cibiv/IQ-TREE
+
 Choose the best substitution model (Best-fit model)
 - "By default, substitution models are not included in these tests. If we want to test them we have to add them. Generally, it is recommended to include them in the test and the following selection would be quite comprehensive for testing models."
 
@@ -236,7 +247,7 @@ What database and threshold criteria to use?
 
 ### Predicting gene expression using codon bias
 * `coRdon v1.8.0`: R package https://github.com/BioinfoHR/coRdon
-- GUI: `INCA`
+- GUI: `INCA`: http://bioinfo.hr/software-tools/#INCA
 
 ## Other
 
@@ -293,9 +304,9 @@ VIBRANT uses:
 
 * `CheckV v.0.8.1`: https://bitbucket.org/berkeleylab/checkv/src/master/
 
-    ```
+```
 checkv end_to_end input_file.fna output_directory -t 4
-    ```
+```
     
 * `VirMatcher`: https://bitbucket.org/MAVERICLab/virmatcher/src/master/
 
@@ -304,8 +315,8 @@ checkv end_to_end input_file.fna output_directory -t 4
 - "--virus-fp": The putative/suspected/known viruses in a single FASTA-formatted file.
 - Taxonomy files: A tab-delimited archaeal genome taxonomy file. Should be in the format of "host name \<TAB> taxon". The taxon can be any level.
 
-    ```
+```
 VirMatcher --virus-fp Faavne_Nanopore_viruses.fasta --bacteria-host-dir Faavne_potential_hosts --bacteria-taxonomy Faavne_potential_hosts_taxonomy.txt --threads 8 -o Faavne_Nanopore_VirMatcher --python-aggregator
-    ```
+```
 
 
