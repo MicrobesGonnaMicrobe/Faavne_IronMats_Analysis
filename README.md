@@ -265,6 +265,8 @@ To get a detailed heatmap of all genes involved in CO<sub>2</sub> fixation pathw
 python3 KEGG_decoder.py  -i BS4Top25_KO.txt -o BS4Top25_KO_Cfixation_order.txt -v static --myorder order.txt --pathway detail
 ```
 
+- Adjusting ".KEGG" to "KEGG" in the script might be needed, depending on the file location.
+
 
 ### Iron oxidation
 
