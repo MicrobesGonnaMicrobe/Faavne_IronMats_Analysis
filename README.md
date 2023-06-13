@@ -303,6 +303,8 @@ What database and threshold criteria to use?
 ### Predicting gene expression using codon bias
 * `coRdon v1.8.0`: R package https://github.com/BioinfoHR/coRdon
 - GUI: `INCA`: http://bioinfo.hr/software-tools/#INCA
+- Use annotated gene calls
+- Use this R script: https://github.com/MicrobesGonnaMicrobe/tools/blob/main/CodonUsage_coRdon.R
 
 ## Other
 
