@@ -3,13 +3,13 @@
 Tools and commands used for analyses of microbial iron mats at Fåvne hydrothermal vent field. Article in preparation.
 
 ## Content
-- [Microbial iron mats at Fåvne hydrothermal vent](#microbial-iron-mats-at-f-vne-hydrothermal-vent)
+- [Microbial iron mats at Fåvne hydrothermal vent](#microbial-iron-mats-at-fåvne-hydrothermal-vent)
   * [MAGs](#mags)
     + [Manual refinement of MAGs](#manual-refinement-of-mags)
     + [Dereplication](#dereplication)
     + [Download reference genomes with metadata](#download-reference-genomes-with-metadata)
-    + [Calculate Average nucleotide identity (ANI)](#calculate-average-nucleotide-identity--ani-)
-    + [Calculate Average aminoacid identity (AAI)](#calculate-average-aminoacid-identity--aai-)
+    + [Calculate Average nucleotide identity (ANI)](#calculate-average-nucleotide-identity-ani)
+    + [Calculate Average aminoacid identity (AAI)](#calculate-average-aminoacid-identity-aai)
     + [Taxonomy](#taxonomy)
     + [Genome quality and statistics](#genome-quality-and-statistics)
   * [Phylogenomics](#phylogenomics)
@@ -21,14 +21,16 @@ Tools and commands used for analyses of microbial iron mats at Fåvne hydrotherm
     + [Build tree](#build-tree)
       - [The standard non-parametric bootstraping with 1000 replicates](#the-standard-non-parametric-bootstraping-with-1000-replicates)
   * [Phylogeny of NiFe uptake hydrogenase and cyc2](#phylogeny-of-nife-uptake-hydrogenase-and-cyc2)
-  * [Annotation: Metabolism and other genes](#annotation--metabolism-and-other-genes)
+  * [Annotation: Metabolism and other genes](#annotation-metabolism-and-other-genes)
+    + [Annotation workflow](#annotation-workflow)
+    + [CO<sub>2</sub> fixation pathways](#co2-fixation-pathways)
     + [Iron oxidation](#iron-oxidation)
-      - [FeGenie: iron genes and metabolism](#fegenie--iron-genes-and-metabolism)
-    + [BacMet: Heavy metal resistance genes and biocides](#bacmet--heavy-metal-resistance-genes-and-biocides)
+      - [FeGenie: iron genes and metabolism](#fegenie-iron-genes-and-metabolism)
+    + [BacMet: Heavy metal resistance genes and biocides](#bacmet-heavy-metal-resistance-genes-and-biocides)
     + [Predicting gene expression using codon bias](#predicting-gene-expression-using-codon-bias)
   * [Other](#other)
     + [Zetaproteobacteria taxonomy based on OTUs](#zetaproteobacteria-taxonomy-based-on-otus)
-    + [Predicting optimal growth temperatures (OGT)](#predicting-optimal-growth-temperatures--ogt-)
+    + [Predicting optimal growth temperatures (OGT)](#predicting-optimal-growth-temperatures-ogt)
     + [Viruses](#viruses)
 
 ## MAGs
@@ -257,7 +259,7 @@ There should be no underscores coming before the gene call number.
 ```bash
 python3 KEGG_decoder.py  -i BS4Top25_KO.txt -o BS4Top25_KO_Cfixation_order.txt -v static --myorder order.txt
 ```
-To get a detailed heatmap of all genes involved in CO2 fixation pathways:
+To get a detailed heatmap of all genes involved in CO<sub>2</sub> fixation pathways:
 
 ```bash
 python3 KEGG_decoder.py  -i BS4Top25_KO.txt -o BS4Top25_KO_Cfixation_order.txt -v static --myorder order.txt --pathway detail
