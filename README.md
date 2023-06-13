@@ -224,6 +224,7 @@ cd-hit -i Cyc2.fa -o Cyc2_drep100.fa -c 1.00
 ```
 ## Annotation: Metabolism and other genes
 
+### Annotation workflow
 - Based on this annotation workflow: https://ndombrowski.github.io/Annotation_workflow/
 
 Gene calling and functional annotation of MAGs was performed with an automated pipeline conducting separate searches against:
@@ -237,6 +238,31 @@ Gene calling and functional annotation of MAGs was performed with an automated p
 * Transporter Classification Database (downloaded from TCDB webserver in February 2021)
 * HydDB (downloaded from HydDB webserver in February 2021)
 * NCBI_nr (downloaded from NCBI webserver in February 2021)
+
+### CO<sub>2</sub> fixation pathways
+- python script based on KEGG-Decoder: https://github.com/achmall/KEGG-decoder-carbonfixation
+- `KEGG-Decoder v1.2.1`: https://github.com/bjtully/BioData/tree/master/KEGGDecoder
+- Exchange the KEGG_decoder.py file of the KEGG-Decoder with the KEGG_decoder.py of the modified CO<sub>2</sub> fixation pathway script.
+
+Input is a text file with gene names and assigned KOs:
+
+NORP9_1	K00370
+
+NORP9_2	K00371
+
+Where NORP9 is your bin name, the number behind the underscore is the gene call number and then the assigned KO. 
+
+There should be no underscores coming before the gene call number.
+
+```bash
+python3 KEGG_decoder.py  -i BS4Top25_KO.txt -o BS4Top25_KO_Cfixation_order.txt -v static --myorder order.txt
+```
+To get a detailed heatmap of all genes involved in CO2 fixation pathways:
+
+```bash
+python3 KEGG_decoder.py  -i BS4Top25_KO.txt -o BS4Top25_KO_Cfixation_order.txt -v static --myorder order.txt --pathway detail
+```
+
 
 ### Iron oxidation
 
