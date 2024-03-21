@@ -287,16 +287,30 @@ Sample command (if providing gene-calls):
 Experimentally Verified Resistance Gene Information:
 http://bacmet.biomedicine.gu.se/database_browse.pl
 
-Predicted:
+- Use gene calls with amino acid sequences (.faa)
+
+Predicted database:
+
 
 ```bash
-    for i in *.faa; do blastp -query $i -db BacMet2_predicted_database.fasta -out BacMet_Results/${i%.faa}_BacMet_Pred -outfmt 6 -evalue 1e-6 -num_threads 20; done
+mkdir BacMet_Results
+
+for i in *.faa; do blastp -query $i -db BacMet2_predicted_database.fasta -out BacMet_Results/${i%.faa}_BacMet_Pred -outfmt 6 -evalue 1e-6 -num_threads 20; done
     
-    cd BacMet_Results
-    
-    for i in *_BacMet_Pred; do perl best_blast.pl $i ${i%}_best; done
-    
-    cat *Pred_best > Faavne_BS4_allZetaproteobacteria_BacMet_Pred.tsv
+cd BacMet_Results
+
+for i in *_BacMet_Pred; do perl best_blast.pl $i ${i%}_best; done
+
+#Add filename to a first column (with , as a separator) and concatenate files
+cat *Pred_best > Faavne_BS4_allZetaproteobacteria_BacMet_Pred.tsv
+
+echo -e "query_acc.ver\tgi\tGI\tref\tGenBank_ID\tgap\t%_identity\talignment_length\tmismatches\tgap_opens\tq.start\tq.end\ts.start\ts.end\tevalue\tbit score\tGI\tGenBank_ID\tGene_name\tOrganism\tCompound\tNCBI_annotation" > BacMet_Pred_best_all_GeneInfo.tsv
+
+perl -ne 'print "$ARGV,$_"' *Pred_best >> BacMet_Pred_best_all.tsv
+perl -ne 'print "$ARGV,$_"' *Pred_best >> BacMet_Pred_best_all_GeneInfo.tsv
+
+#Add mapping file info
+awk -F'[\t|]' 'FNR==NR{a[$1]=$0;next}{$17=a[$3];print}' OFS='\t' BacMet2_PRE.155512.mapping.txt  BacMet_Pred_best_all.tsv >> BacMet_Pred_best_all_GeneInfo.tsv
 ```
 
 What database and threshold criteria to use?
