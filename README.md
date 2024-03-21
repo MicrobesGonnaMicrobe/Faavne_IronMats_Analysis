@@ -338,7 +338,12 @@ run_zeta_hunter --inaln Zetas_SINAalign.fasta --outdir Faavne_biofilms_Zetahunte
 ### Predicting optimal growth temperatures (OGT)
 * https://github.com/DavidBSauer/OGT_prediction
 
-1. Place each genome in a folder in the prediction directory called "genomes/XXX/" where XXX is the name of the species.  Genomes should be ziped in .gz format.
+1. Place each genome in a folder in the prediction directory called "genomes/XXX/" where XXX is the name of the species. The species names are unimportant for this regression and can be placeholders. Genomes should be ziped in .gz format.
+```
+gzip *.fna
+for i in *.fna.gz; do mkdir "${i%.fna.gz}"; done
+for i in *.fna.gz; do mv "$i" "${i%.fna.gz}"; done
+```
 2. Create a tab separated file of the genomes and species pairs. Provide this file in place of genomes_retrieved.txt. Follow the format below:
 ```
 Faavne_M6_B18.fna.gz	Faavne_M6_B18
